@@ -3,7 +3,7 @@
 
 Download our source code:
 ```bash
-git clone https://github.com/huggingface/lerobot.git
+git clone https://github.com/robot1lyj/gello_piper_lerobot.git
 cd lerobot
 ```
 
@@ -39,6 +39,63 @@ pip install -e .
 - 完善标定程序--目前基于手动标定--待完成
 - 双臂遥操作--待完成
 - 完善代码架构--待完成
+
+### 单臂遥操作需要修改的地方：
+1.增加机械臂的驱动程序--这里用的方法相当于新增一个叫做piper的舵机--同时也可以直接调用piper的sdk
+lerobot/common/robot_devices/motors/
+创建piper.py 创建 class PiperMotorsBus 类实现：
+```python
+class MotorsBus(Protocol):
+	def motor_names(self): ...
+    def set_calibration(self): ...
+	def apply_calibration(self): ...
+	def revert_calibration(self): ...
+	def read(self): ...
+	def write(self): ...
+```
+值得注意的是，这里封装主要是对piper的sdk做二次封装。
+在config.py中新增 class PiperMotorsBusConfig
+utils.py中修改 def make_motors_buses_from_configs支持从PiperMotorsBusConfig中创建 PiperMotorsBus
+
+2. 实现lerobot/common/robot_devices/robots/
+这里要基于lerobot/common/robot_devices/robots/manipulator.py进行修改，主要是实现
+```python
+class Robot(Protocol):
+    # TODO(rcadene, aliberts): Add unit test checking the protocol is implemented in the corresponding classes
+    robot_type: str
+    features: dict
+
+    def connect(self): ...
+    def run_calibration(self): ...
+    def teleop_step(self, record_data=False): ...
+    def capture_observation(self): ...
+    def send_action(self, action): ...
+    def disconnect(self): ...
+```
+
+在config.py中新增 class PiperRobotConfig，定义camera和motor类型并配置相关参数。
+
+在utils.py中修改 def make_robot_from_config，支持从 PiperRobotConfig 中创建PiperRobot.。
+
+3. 标定问题
+这里先根据原本的教程设置好gello的ID跟波特率
+然后值得注意的是，我这里是直接写好标定的程序的，因为机械臂倒装，所以很难摆到教程的位置。
+个人的一个标定的技巧：
+先输出leader臂的关节数据：leader_jonits
+再用sdk获得follower臂的关节数据：follower_joints
+先保证两个数据的位数一样。
+然后套用公式
+
+$$
+（两者差值）/360*4096
+$$
+
+填到.cache/calibration/piper/main_leader.json这里。**注意**，可以将.cache/calibration/piper/main_follower.json的offset都填为0，基于这个来调整leader。
+
+注意的是：第一次调整完offset，可能会发生反转，那优先标定转向，再标定一次offset。
+
+
+
 
 ## Walkthrough
 
