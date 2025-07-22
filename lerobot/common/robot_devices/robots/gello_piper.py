@@ -157,6 +157,7 @@ class piperRobot:
         for name in self.leader_arms:
             before_lread_t = time.perf_counter()
             leader_pos[name] = self.leader_arms[name].read("Present_Position")
+            print("leader_pos[name]", leader_pos[name])
             leader_pos[name] = torch.from_numpy(leader_pos[name])
             self.logs[f"read_leader_{name}_pos_dt_s"] = time.perf_counter() - before_lread_t
 
@@ -188,8 +189,8 @@ class piperRobot:
             # 提取关节值并转换为张量
             joint_values = [follower_pos[name][j] for j in joint_names]
             follower_pos[name] = torch.tensor(joint_values, dtype=torch.float32)
-            print(f"变量类型: {type(follower_pos[name])}")
-            print(f"变量内容: {follower_pos[name]}")
+            # print(f"变量类型: {type(follower_pos[name])}")
+            # print(f"变量内容: {follower_pos[name]}")
             # follower_pos[name] = torch.from_numpy(follower_pos[name])
             self.logs[f"read_follower_{name}_pos_dt_s"] = time.perf_counter() - before_fread_t
 

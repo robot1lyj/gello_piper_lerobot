@@ -12,8 +12,8 @@ class PiperMotorsBus:
         self.piper = C_PiperInterface_V2(config.can_name)
         self.piper.ConnectPort()
         self.motors = config.motors
-        self.init_joint_position = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] # [6 joints + 1 gripper] * 0.0
-        self.safe_disable_position = [0.0, 0.0, 0.0, 0.0, 0.52, 0.0, 0.0]
+        self.init_joint_position = [-5, 80, -161, 26.2, -8.3, -4.1, 0.0] # [6 joints + 1 gripper] * 0.0
+        self.safe_disable_position = [-5, 80, -161, 26.2, -8.3, -4.1, 0.0]
         self.pose_factor = 1000 # 单位 0.001mm
         self.joint_factor = 1000 # 1000*180/3.14， rad -> 度（单位0.001度）
 
@@ -115,7 +115,7 @@ class PiperMotorsBus:
         if gripper_range < 1000000:
             gripper_range = 0
 
-        self.piper.MotionCtrl_2(0x01, 0x01, 60, 0x00) # joint control
+        self.piper.MotionCtrl_2(0x01, 0x01, 60, 0xAD) # joint control
         self.piper.JointCtrl(joint_0, joint_1, joint_2, joint_3, joint_4, joint_5)
         self.piper.GripperCtrl(abs(gripper_range), 1000, 0x01, 0) # 单位 0.001°
     
