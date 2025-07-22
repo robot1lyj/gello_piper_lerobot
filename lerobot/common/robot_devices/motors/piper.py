@@ -15,7 +15,7 @@ class PiperMotorsBus:
         self.init_joint_position = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] # [6 joints + 1 gripper] * 0.0
         self.safe_disable_position = [0.0, 0.0, 0.0, 0.0, 0.52, 0.0, 0.0]
         self.pose_factor = 1000 # 单位 0.001mm
-        self.joint_factor = 57324.840764 # 1000*180/3.14， rad -> 度（单位0.001度）
+        self.joint_factor = 1000 # 1000*180/3.14， rad -> 度（单位0.001度）
 
     @property
     def motor_names(self) -> list[str]:
@@ -111,9 +111,11 @@ class PiperMotorsBus:
         joint_3 = round(target_joint[3]*self.joint_factor)
         joint_4 = round(target_joint[4]*self.joint_factor)
         joint_5 = round(target_joint[5]*self.joint_factor)
-        gripper_range = round(target_joint[6]*1000*1000)
+        gripper_range = round(target_joint[6]*1000*100)
+        if gripper_range < 1000000:
+            gripper_range = 0
 
-        self.piper.MotionCtrl_2(0x01, 0x01, 100, 0x00) # joint control
+        self.piper.MotionCtrl_2(0x01, 0x01, 60, 0x00) # joint control
         self.piper.JointCtrl(joint_0, joint_1, joint_2, joint_3, joint_4, joint_5)
         self.piper.GripperCtrl(abs(gripper_range), 1000, 0x01, 0) # 单位 0.001°
     

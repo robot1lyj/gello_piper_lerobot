@@ -114,11 +114,11 @@ class piperRobot:
 
 
 
-        # Check both arms can be read
-        for name in self.follower_arms:
-            self.follower_arms[name].read("Present_Position")
-        for name in self.leader_arms:
-            self.leader_arms[name].read("Present_Position")
+        # # Check both arms can be read
+        # for name in self.follower_arms:
+        #     self.follower_arms[name].read()
+        # for name in self.leader_arms:
+        #     self.leader_arms[name].read()
 
         # Connect the cameras
         for name in self.cameras:
@@ -166,18 +166,11 @@ class piperRobot:
             before_fwrite_t = time.perf_counter()
             goal_pos = leader_pos[name]
 
-            # Cap goal position when too far away from present position.
-            # Slower fps expected due to reading from the follower.
-            if self.config.max_relative_target is not None:
-                present_pos = self.follower_arms[name].read("Present_Position")
-                present_pos = torch.from_numpy(present_pos)
-                goal_pos = ensure_safe_goal_position(goal_pos, present_pos, self.config.max_relative_target)
-
             # Used when record_data=True
             follower_goal_pos[name] = goal_pos
 
             goal_pos = goal_pos.numpy().astype(np.int32)
-            self.follower_arms[name].write("Goal_Position", goal_pos)
+            self.follower_arms[name].write( goal_pos)
             self.logs[f"write_follower_{name}_goal_pos_dt_s"] = time.perf_counter() - before_fwrite_t
 
         # Early exit when recording data is not requested
@@ -189,8 +182,15 @@ class piperRobot:
         follower_pos = {}
         for name in self.follower_arms:
             before_fread_t = time.perf_counter()
-            follower_pos[name] = self.follower_arms[name].read("Present_Position")
-            follower_pos[name] = torch.from_numpy(follower_pos[name])
+            follower_pos[name] = self.follower_arms[name].read()
+            joint_names = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6', 'gripper']
+    
+            # 提取关节值并转换为张量
+            joint_values = [follower_pos[name][j] for j in joint_names]
+            follower_pos[name] = torch.tensor(joint_values, dtype=torch.float32)
+            print(f"变量类型: {type(follower_pos[name])}")
+            print(f"变量内容: {follower_pos[name]}")
+            # follower_pos[name] = torch.from_numpy(follower_pos[name])
             self.logs[f"read_follower_{name}_pos_dt_s"] = time.perf_counter() - before_fread_t
 
         # Create state by concatenating follower current position
@@ -236,7 +236,7 @@ class piperRobot:
         follower_pos = {}
         for name in self.follower_arms:
             before_fread_t = time.perf_counter()
-            follower_pos[name] = self.follower_arms[name].read("Present_Position")
+            follower_pos[name] = self.follower_arms[name].read()
             follower_pos[name] = torch.from_numpy(follower_pos[name])
             self.logs[f"read_follower_{name}_pos_dt_s"] = time.perf_counter() - before_fread_t
 
@@ -287,19 +287,19 @@ class piperRobot:
             goal_pos = action[from_idx:to_idx]
             from_idx = to_idx
 
-            # Cap goal position when too far away from present position.
-            # Slower fps expected due to reading from the follower.
-            if self.config.max_relative_target is not None:
-                present_pos = self.follower_arms[name].read("Present_Position")
-                present_pos = torch.from_numpy(present_pos)
-                goal_pos = ensure_safe_goal_position(goal_pos, present_pos, self.config.max_relative_target)
+            # # Cap goal position when too far away from present position.
+            # # Slower fps expected due to reading from the follower.
+            # if self.config.max_relative_target is not None:
+            #     present_pos = self.follower_arms[name].read("Present_Position")
+            #     present_pos = torch.from_numpy(present_pos)
+            #     goal_pos = ensure_safe_goal_position(goal_pos, present_pos, self.config.max_relative_target)
 
             # Save tensor to concat and return
             action_sent.append(goal_pos)
 
             # Send goal position to each follower
             goal_pos = goal_pos.numpy().astype(np.int32)
-            self.follower_arms[name].write("Goal_Position", goal_pos)
+            self.follower_arms[name].write( goal_pos)
 
         return torch.cat(action_sent)
 
@@ -314,7 +314,7 @@ class piperRobot:
             )
 
         for name in self.follower_arms:
-            self.follower_arms[name].disconnect()
+            self.follower_arms[name].safe_disconnect()
 
         for name in self.leader_arms:
             self.leader_arms[name].disconnect()

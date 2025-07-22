@@ -771,23 +771,24 @@ class piperBimanualRobotConfig(ManipulatorRobotConfig):
 
 @RobotConfig.register_subclass("piper")
 @dataclass
-class piperRobotConfig(ManipulatorRobotConfig):
+class piperRobotConfig(RobotConfig):
     calibration_dir: str = ".cache/calibration/piper"
 
     max_relative_target: int | None = None
 
     leader_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
-            "left": DynamixelMotorsBusConfig(
+            "main": DynamixelMotorsBusConfig(
                 port="/dev/ttyUSB0",
                 motors={
                     # name: (index, model)
-                    "shoulder_pan": [1, "xl330-m077"],
-                    "shoulder_lift": [2, "xl330-m077"],
-                    "elbow_flex": [3, "xl330-m077"],
-                    "wrist_flex": [4, "xl330-m077"],
-                    "wrist_roll": [5, "xl330-m077"],
-                    "gripper": [6, "xl330-m077"],
+                    "shoulder_pan": [1, "xl330-m288"],
+                    "shoulder_lift": [2, "xl330-m288"],
+                    "elbow_flex": [3, "xl330-m288"],
+                    "wrist_1": [4, "xl330-m288"],
+                    "wrist_2": [5, "xl330-m288"],
+                    "wrist_3": [6, "xl330-m288"],
+                    "gripper": [7, "xl330-m077"],
                 },
             ),
         }
@@ -795,7 +796,7 @@ class piperRobotConfig(ManipulatorRobotConfig):
 
     follower_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
-            "left": PiperMotorsBusConfig(
+            "main": PiperMotorsBusConfig(
                 can_name="can2",
                 motors={
                     # name: (index, model)
@@ -815,7 +816,7 @@ class piperRobotConfig(ManipulatorRobotConfig):
         default_factory=lambda: {
             "laptop": OpenCVCameraConfig(
                 camera_index=10,
-                fps=30,
+                fps=60,
                 width=640,
                 height=480,
             ),
