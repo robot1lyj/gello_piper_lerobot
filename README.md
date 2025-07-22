@@ -1,101 +1,3 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="media/lerobot-logo-thumbnail.png">
-    <source media="(prefers-color-scheme: light)" srcset="media/lerobot-logo-thumbnail.png">
-    <img alt="LeRobot, Hugging Face Robotics Library" src="media/lerobot-logo-thumbnail.png" style="max-width: 100%;">
-  </picture>
-  <br/>
-  <br/>
-</p>
-
-<div align="center">
-
-[![Tests](https://github.com/huggingface/lerobot/actions/workflows/nightly-tests.yml/badge.svg?branch=main)](https://github.com/huggingface/lerobot/actions/workflows/nightly-tests.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/huggingface/lerobot/branch/main/graph/badge.svg?token=TODO)](https://codecov.io/gh/huggingface/lerobot)
-[![Python versions](https://img.shields.io/pypi/pyversions/lerobot)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/huggingface/lerobot/blob/main/LICENSE)
-[![Status](https://img.shields.io/pypi/status/lerobot)](https://pypi.org/project/lerobot/)
-[![Version](https://img.shields.io/pypi/v/lerobot)](https://pypi.org/project/lerobot/)
-[![Examples](https://img.shields.io/badge/Examples-green.svg)](https://github.com/huggingface/lerobot/tree/main/examples)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.1%20adopted-ff69b4.svg)](https://github.com/huggingface/lerobot/blob/main/CODE_OF_CONDUCT.md)
-[![Discord](https://dcbadge.vercel.app/api/server/C5P34WJ68S?style=flat)](https://discord.gg/s3KuuzsPFb)
-
-</div>
-
-<h2 align="center">
-    <p><a href="https://github.com/huggingface/lerobot/blob/main/examples/12_use_so101.md">
-        Build Your Own SO-101 Robot!</a></p>
-</h2>
-
-<div align="center">
-  <div style="display: flex; gap: 1rem; justify-content: center; align-items: center;" >
-    <img
-      src="media/so101/so101.webp?raw=true"
-      alt="SO-101 follower arm"
-      title="SO-101 follower arm"
-      style="width: 40%;"
-    />
-    <img
-      src="media/so101/so101-leader.webp?raw=true"
-      alt="SO-101 leader arm"
-      title="SO-101 leader arm"
-      style="width: 40%;"
-    />
-  </div>
-
-
-  <p><strong>Meet the updated SO100, the SO-101 – Just €114 per arm!</strong></p>
-  <p>Train it in minutes with a few simple moves on your laptop.</p>
-  <p>Then sit back and watch your creation act autonomously! 🤯</p>
-
-  <p><a href="https://github.com/huggingface/lerobot/blob/main/examples/12_use_so101.md">
-      See the full SO-101 tutorial here.</a></p>
-
-  <p>Want to take it to the next level? Make your SO-101 mobile by building LeKiwi!</p>
-  <p>Check out the <a href="https://github.com/huggingface/lerobot/blob/main/examples/11_use_lekiwi.md">LeKiwi tutorial</a> and bring your robot to life on wheels.</p>
-
-  <img src="media/lekiwi/kiwi.webp?raw=true" alt="LeKiwi mobile robot" title="LeKiwi mobile robot" width="50%">
-</div>
-
-<br/>
-
-<h3 align="center">
-    <p>LeRobot: State-of-the-art AI for real-world robotics</p>
-</h3>
-
----
-
-🤗 LeRobot aims to provide models, datasets, and tools for real-world robotics in PyTorch. The goal is to lower the barrier to entry to robotics so that everyone can contribute and benefit from sharing datasets and pretrained models.
-
-🤗 LeRobot contains state-of-the-art approaches that have been shown to transfer to the real-world with a focus on imitation learning and reinforcement learning.
-
-🤗 LeRobot already provides a set of pretrained models, datasets with human collected demonstrations, and simulation environments to get started without assembling a robot. In the coming weeks, the plan is to add more and more support for real-world robotics on the most affordable and capable robots out there.
-
-🤗 LeRobot hosts pretrained models and datasets on this Hugging Face community page: [huggingface.co/lerobot](https://huggingface.co/lerobot)
-
-#### Examples of pretrained models on simulation environments
-
-<table>
-  <tr>
-    <td><img src="media/gym/aloha_act.gif" width="100%" alt="ACT policy on ALOHA env"/></td>
-    <td><img src="media/gym/simxarm_tdmpc.gif" width="100%" alt="TDMPC policy on SimXArm env"/></td>
-    <td><img src="media/gym/pusht_diffusion.gif" width="100%" alt="Diffusion policy on PushT env"/></td>
-  </tr>
-  <tr>
-    <td align="center">ACT policy on ALOHA env</td>
-    <td align="center">TDMPC policy on SimXArm env</td>
-    <td align="center">Diffusion policy on PushT env</td>
-  </tr>
-</table>
-
-### Acknowledgment
-
-- Thanks to Tony Zhao, Zipeng Fu and colleagues for open sourcing ACT policy, ALOHA environments and datasets. Ours are adapted from [ALOHA](https://tonyzhaozh.github.io/aloha) and [Mobile ALOHA](https://mobile-aloha.github.io).
-- Thanks to Cheng Chi, Zhenjia Xu and colleagues for open sourcing Diffusion policy, Pusht environment and datasets, as well as UMI datasets. Ours are adapted from [Diffusion Policy](https://diffusion-policy.cs.columbia.edu) and [UMI Gripper](https://umi-gripper.github.io).
-- Thanks to Nicklas Hansen, Yunhai Feng and colleagues for open sourcing TDMPC policy, Simxarm environments and datasets. Ours are adapted from [TDMPC](https://github.com/nicklashansen/tdmpc) and [FOWM](https://www.yunhaifeng.com/FOWM).
-- Thanks to Antonio Loquercio and Ashish Kumar for their early support.
-- Thanks to [Seungjae (Jay) Lee](https://sjlee.cc/), [Mahi Shafiullah](https://mahis.life/) and colleagues for open sourcing [VQ-BeT](https://sjlee.cc/vq-bet/) policy and helping us adapt the codebase to our repository. The policy is adapted from [VQ-BeT repo](https://github.com/jayLEE0301/vq_bet_official).
-
 
 ## Installation
 
@@ -131,22 +33,12 @@ pip install -e .
 > **NOTE:** If you encounter build errors, you may need to install additional dependencies (`cmake`, `build-essential`, and `ffmpeg libs`). On Linux, run:
 `sudo apt-get install cmake build-essential python3-dev pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev pkg-config`. For other systems, see: [Compiling PyAV](https://pyav.org/docs/develop/overview/installation.html#bring-your-own-ffmpeg)
 
-For simulations, 🤗 LeRobot comes with gymnasium environments that can be installed as extras:
-- [aloha](https://github.com/huggingface/gym-aloha)
-- [xarm](https://github.com/huggingface/gym-xarm)
-- [pusht](https://github.com/huggingface/gym-pusht)
+本仓库适配了piper机械臂基于gello的遥操作演示
 
-For instance, to install 🤗 LeRobot with aloha and pusht, use:
-```bash
-pip install -e ".[aloha, pusht]"
-```
-
-To use [Weights and Biases](https://docs.wandb.ai/quickstart) for experiment tracking, log in with
-```bash
-wandb login
-```
-
-(note: you will also need to enable WandB in the configuration. See below.)
+- 单臂遥操作--已完成
+- 完善标定程序--目前基于手动标定--待完成
+- 双臂遥操作--待完成
+- 完善代码架构--待完成
 
 ## Walkthrough
 
