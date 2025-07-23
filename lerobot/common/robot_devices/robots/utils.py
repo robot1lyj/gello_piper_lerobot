@@ -25,7 +25,8 @@ from lerobot.common.robot_devices.robots.configs import (
     So100RobotConfig,
     So101RobotConfig,
     StretchRobotConfig,
-    piperRobotConfig
+    piperRobotConfig,
+    piperBimanualRobotConfig
 )
 
 
@@ -68,6 +69,8 @@ def make_robot_config(robot_type: str, **kwargs) -> RobotConfig:
         return LeKiwiRobotConfig(**kwargs)
     elif robot_type == 'piper':
         return piperRobotConfig(**kwargs)
+    elif robot_type == 'piper_bimanual':
+        return piperBimanualRobotConfig(**kwargs)
     else:
         raise ValueError(f"Robot type '{robot_type}' is not available.")
 
@@ -78,6 +81,8 @@ def make_robot_from_config(config: RobotConfig):
 
         return ManipulatorRobot(config)
     if isinstance(config, piperRobotConfig):
+        from lerobot.common.robot_devices.robots.gello_piper import piperRobot
+    if isinstance(config, piperBimanualRobotConfig):
         from lerobot.common.robot_devices.robots.gello_piper import piperRobot
 
         return piperRobot(config)

@@ -679,7 +679,7 @@ class LeKiwiRobotConfig(RobotConfig):
 
 @RobotConfig.register_subclass("piper_bimanual")
 @dataclass
-class piperBimanualRobotConfig(ManipulatorRobotConfig):
+class piperBimanualRobotConfig(RobotConfig):
     calibration_dir: str = ".cache/calibration/piper_bimanual"
 
     max_relative_target: int | None = None
@@ -687,27 +687,29 @@ class piperBimanualRobotConfig(ManipulatorRobotConfig):
     leader_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
             "left": DynamixelMotorsBusConfig(
-                port="/dev/tty.usbmodem585A0085511",
+                port="/dev/ttyUSB1",
                 motors={
                     # name: (index, model)
-                    "shoulder_pan": [1, "xl330-m077"],
-                    "shoulder_lift": [2, "xl330-m077"],
-                    "elbow_flex": [3, "xl330-m077"],
-                    "wrist_flex": [4, "xl330-m077"],
-                    "wrist_roll": [5, "xl330-m077"],
-                    "gripper": [6, "xl330-m077"],
+                    "shoulder_pan": [1, "xl330-m288"],
+                    "shoulder_lift": [2, "xl330-m288"],
+                    "elbow_flex": [3, "xl330-m288"],
+                    "wrist_1": [4, "xl330-m288"],
+                    "wrist_2": [5, "xl330-m288"],
+                    "wrist_3": [6, "xl330-m288"],
+                    "gripper": [7, "xl330-m077"],
                 },
             ),
             "right": DynamixelMotorsBusConfig(
-                port="/dev/tty.usbmodem575E0031751",
+                port="/dev/ttyUSB0",
                 motors={
                     # name: (index, model)
-                    "shoulder_pan": [1, "xl330-m077"],
-                    "shoulder_lift": [2, "xl330-m077"],
-                    "elbow_flex": [3, "xl330-m077"],
-                    "wrist_flex": [4, "xl330-m077"],
-                    "wrist_roll": [5, "xl330-m077"],
-                    "gripper": [6, "xl330-m077"],
+                    "shoulder_pan": [1, "xl330-m288"],
+                    "shoulder_lift": [2, "xl330-m288"],
+                    "elbow_flex": [3, "xl330-m288"],
+                    "wrist_1": [4, "xl330-m288"],
+                    "wrist_2": [5, "xl330-m288"],
+                    "wrist_3": [6, "xl330-m288"],
+                    "gripper": [7, "xl330-m077"],
                 },
             ),
         }
@@ -716,7 +718,7 @@ class piperBimanualRobotConfig(ManipulatorRobotConfig):
     follower_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
             "left": PiperMotorsBusConfig(
-                can_name="can0",
+                can_name="can_left",
                 motors={
                     # name: (index, model)
                     "joint_1": [1, "agilex_piper"],
@@ -729,7 +731,7 @@ class piperBimanualRobotConfig(ManipulatorRobotConfig):
                 },
             ),
             "right": PiperMotorsBusConfig(
-                can_name="can1",
+                can_name="can_right",
                 motors={
                     # name: (index, model)
                     "joint_1": [1, "agilex_piper"],
@@ -779,7 +781,7 @@ class piperRobotConfig(RobotConfig):
     leader_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
             "main": DynamixelMotorsBusConfig(
-                port="/dev/ttyUSB0",
+                port="/dev/ttyUSB1",
                 motors={
                     # name: (index, model)
                     "shoulder_pan": [1, "xl330-m288"],
@@ -797,7 +799,7 @@ class piperRobotConfig(RobotConfig):
     follower_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
             "main": PiperMotorsBusConfig(
-                can_name="can2",
+                can_name="can_right",
                 motors={
                     # name: (index, model)
                     "joint_1": [1, "agilex_piper"],

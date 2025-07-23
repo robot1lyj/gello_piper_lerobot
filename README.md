@@ -37,13 +37,80 @@ pip install -e .
 
 - 单臂遥操作--已完成
 - 完善标定程序--目前基于手动标定--待完成
-- 双臂遥操作--待完成
+- 双臂遥操作--已完成
 - 完善代码架构--待完成
 
-### 单臂遥操作需要修改的地方：
+### piper适配
+
+#### 安装：
+
+```shell
+pip install python-can
+pip install piper_sdk
+sudo apt update && sudo apt install can-utils ethtool
+```
+下载piper-sdk仓库:https://github.com/agilexrobotics/piper_sdk
+
+#### 机械臂使能：
+
+##### 双臂：
+
+先将左机械臂的can线接入电脑
+
+然后执行：
+
+```bash
+ cd piper_sdk
+ bash find_all_can_port.sh 
+```
+
+终端会出现左机械臂的端口号
+
+```bash
+ethtool 和 can-utils 均已安装。
+接口 can0 插入在 USB 端口 1-3:1.0
+```
+
+接着将右机械臂的can线接入电脑
+
+再次执行：
+
+```bash
+bash find_all_can_port.sh 
+```
+
+终端会出现左机械臂的端口号。
+
+将这左右两个端口号复制到 can_config.sh 文件的 111 和 112 行，如下所示：
+
+```bash
+# 预定义的 USB 端口、目标接口名称及其比特率（在多个 CAN 模块时使用）
+if [ "$EXPECTED_CAN_COUNT" -ne 1 ]; then
+    declare -A USB_PORTS 
+    USB_PORTS["1-8.1:1.0"]="left_piper:1000000"  #左机械臂
+    USB_PORTS["1-8.2:1.0"]="right_piper:1000000" #右机械臂
+fi
+```
+
+保存完毕后，激活左右机械臂使能脚本：
+
+```bash
+bash can_config.sh 
+```
+
+##### 单臂：
+
+```bash
+bash can_activate.sh can0 1000000
+```
+**注意：**这里的机械臂名称对应要到lerobot/common/robot_devices/robots/config.py 在自己新建的PiperRobotConfig中修改
+
+### 单臂遥操作：
+
 1.增加机械臂的驱动程序--这里用的方法相当于新增一个叫做piper的舵机--同时也可以直接调用piper的sdk
 lerobot/common/robot_devices/motors/
 创建piper.py 创建 class PiperMotorsBus 类实现：
+
 ```python
 class MotorsBus(Protocol):
 	def motor_names(self): ...
@@ -93,6 +160,17 @@ $$
 填到.cache/calibration/piper/main_leader.json这里。**注意**，可以将.cache/calibration/piper/main_follower.json的offset都填为0，基于这个来调整leader。
 
 注意的是：第一次调整完offset，可能会发生反转，那优先标定转向，再标定一次offset。
+
+### 双臂遥操作
+
+修改的地方也是跟单臂遥操作一样的
+
+但是控制的频率会下降，可以增加一下机械臂的运动控制速度
+
+### 注意事项：
+
+1. piper的控制单位是0.001度，一般舵机控制都是两位数或者三位数，并且可以用舵机读出来的数值直接控制piper，不用从弧度转角度。
+2. 倒装下的piper机械臂控制会出现很严重的抖动问题，可以用mit控制模式，可以减少很多的抖动
 
 
 
