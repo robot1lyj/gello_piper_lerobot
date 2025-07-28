@@ -82,6 +82,7 @@ def make_robot_from_config(config: RobotConfig):
         return ManipulatorRobot(config)
     if isinstance(config, piperRobotConfig):
         from lerobot.common.robot_devices.robots.gello_piper import piperRobot
+        return piperRobot(config)
     if isinstance(config, piperBimanualRobotConfig):
         from lerobot.common.robot_devices.robots.gello_piper import piperRobot
 

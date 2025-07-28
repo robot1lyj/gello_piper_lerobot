@@ -708,8 +708,31 @@ class LeRobotDataset(torch.utils.data.Dataset):
         item = {}
         for vid_key, query_ts in query_timestamps.items():
             video_path = self.root / self.meta.get_video_file_path(ep_idx, vid_key)
-            frames = decode_video_frames(video_path, query_ts, self.tolerance_s, self.video_backend)
-            item[vid_key] = frames.squeeze(0)
+            
+            # Check if video file exists
+            if not video_path.exists():
+                raise FileNotFoundError(
+                    f"Video file not found: {video_path}. "
+                    f"Episode index: {ep_idx}, Video key: {vid_key}. "
+                    f"Please verify that the video file exists and is accessible."
+                )
+            
+            # Check if video file is empty or invalid
+            if video_path.stat().st_size == 0:
+                raise ValueError(
+                    f"Video file is empty: {video_path}. "
+                    f"Episode index: {ep_idx}, Video key: {vid_key}."
+                )
+            
+            try:
+                frames = decode_video_frames(video_path, query_ts, self.tolerance_s, self.video_backend)
+                item[vid_key] = frames.squeeze(0)
+            except Exception as e:
+                raise ValueError(
+                    f"Failed to decode video frames from {video_path}. "
+                    f"Episode index: {ep_idx}, Video key: {vid_key}. "
+                    f"Error: {str(e)}"
+                ) from e
 
         return item
 

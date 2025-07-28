@@ -157,7 +157,7 @@ class piperRobot:
         for name in self.leader_arms:
             before_lread_t = time.perf_counter()
             leader_pos[name] = self.leader_arms[name].read("Present_Position")
-            print("leader_pos[name]", leader_pos[name])
+            # print(f"leader_pos_{name}", leader_pos[name])
             leader_pos[name] = torch.from_numpy(leader_pos[name])
             self.logs[f"read_leader_{name}_pos_dt_s"] = time.perf_counter() - before_lread_t
 

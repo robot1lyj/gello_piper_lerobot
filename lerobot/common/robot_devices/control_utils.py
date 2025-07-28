@@ -166,6 +166,13 @@ def init_keyboard_listener():
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
 
+    # 显示初始按键提示
+    print("\n=== 数据录制控制按键 ===")
+    print("→ 右箭头键: 提前结束当前阶段")
+    print("← 左箭头键: 取消当前片段并重新录制")
+    print("ESC键: 停止数据录制并保存")
+    print("========================\n")
+
     return listener, events
 
 
@@ -286,7 +293,7 @@ def control_loop(
             busy_wait(1 / fps - dt_s)
 
         dt_s = time.perf_counter() - start_loop_t
-        log_control_info(robot, dt_s, fps=fps)
+        # log_control_info(robot, dt_s, fps=fps)
 
         timestamp = time.perf_counter() - start_episode_t
         if events["exit_early"]:

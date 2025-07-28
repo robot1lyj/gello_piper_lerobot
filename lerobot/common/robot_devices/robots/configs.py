@@ -781,7 +781,7 @@ class piperRobotConfig(RobotConfig):
     leader_arms: dict[str, MotorsBusConfig] = field(
         default_factory=lambda: {
             "main": DynamixelMotorsBusConfig(
-                port="/dev/ttyUSB1",
+                port="/dev/ttyUSB0",
                 motors={
                     # name: (index, model)
                     "shoulder_pan": [1, "xl330-m288"],
@@ -822,12 +822,12 @@ class piperRobotConfig(RobotConfig):
                 width=640,
                 height=480,
             ),
-            # "phone": OpenCVCameraConfig(
-            #     camera_index=1,
-            #     fps=30,
-            #     width=640,
-            #     height=480,
-            # ),
+            "right_wrist": OpenCVCameraConfig(
+                camera_index=4,
+                fps=30,
+                width=640,
+                height=480,
+            ),
         }
     )
 

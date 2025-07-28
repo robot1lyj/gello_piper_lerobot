@@ -296,6 +296,7 @@ def record(
             break
 
         log_say(f"Recording episode {dataset.num_episodes}", cfg.play_sounds)
+        print(f"\n开始录制第 {dataset.num_episodes} 个片段...")
         record_episode(
             robot=robot,
             dataset=dataset,
@@ -314,6 +315,10 @@ def record(
         if not events["stop_recording"] and (
             (recorded_episodes < cfg.num_episodes - 1) or events["rerecord_episode"]
         ):
+            print(f"\n第 {dataset.num_episodes} 个片段录制完成!")
+            print("请重置环境以便录制下一个片段...")
+            print("- 按右箭头键 (->) 确认环境已重置并继续下一个片段录制")
+            print("- 按左箭头键 (<-) 取消当前片段并重新录制")
             log_say("Reset the environment", cfg.play_sounds)
             reset_environment(robot, events, cfg.reset_time_s, cfg.fps)
 
@@ -322,21 +327,27 @@ def record(
             events["rerecord_episode"] = False
             events["exit_early"] = False
             dataset.clear_episode_buffer()
+            print("\n取消当前片段，重新录制...")
             continue
 
         dataset.save_episode()
         recorded_episodes += 1
+        print(f"\n第 {dataset.num_episodes - 1} 个片段已保存!")
 
         if events["stop_recording"]:
             break
 
     log_say("Stop recording", cfg.play_sounds, blocking=True)
+    print("\n数据录制已结束!")
+    print("- 正在保存所有片段...")
     stop_recording(robot, listener, cfg.display_data)
 
     if cfg.push_to_hub:
+        print("- 正在上传数据集到 Hugging Face Hub...")
         dataset.push_to_hub(tags=cfg.tags, private=cfg.private)
 
     log_say("Exiting", cfg.play_sounds)
+    print("退出程序。")
     return dataset
 
 
