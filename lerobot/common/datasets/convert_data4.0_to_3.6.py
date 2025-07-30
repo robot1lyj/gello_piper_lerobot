@@ -1,4 +1,5 @@
 import os
+
 import pyarrow.parquet as pq
 
 recomment_file_path = "/home/lyj/data6/data/chunk-000"

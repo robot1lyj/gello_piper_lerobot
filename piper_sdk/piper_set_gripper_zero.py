@@ -4,10 +4,11 @@
 # 夹爪设定零点demo
 
 import time
+
 from piper_sdk import *
 
 if __name__ == "__main__":
-    piper = C_PiperInterface_V2("can_left")
+    piper = C_PiperInterface_V2("can_right")
     piper.ConnectPort()
     piper.GripperCtrl(0,1000,0x00, 0)
     time.sleep(1.5)

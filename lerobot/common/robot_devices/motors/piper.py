@@ -1,7 +1,9 @@
 import time
 from typing import Dict
-from piper_sdk import *
+
 from lerobot.common.robot_devices.motors.configs import PiperMotorsBusConfig
+from piper_sdk import *
+
 
 class PiperMotorsBus:
     """
@@ -42,7 +44,7 @@ class PiperMotorsBus:
         start_time = time.time()
         while not (loop_flag):
             elapsed_time = time.time() - start_time
-            print(f"--------------------")
+            print("--------------------")
             enable_list = []
             enable_list.append(self.piper.GetArmLowSpdInfoMsgs().motor_1.foc_status.driver_enable_status)
             enable_list.append(self.piper.GetArmLowSpdInfoMsgs().motor_2.foc_status.driver_enable_status)
@@ -60,7 +62,7 @@ class PiperMotorsBus:
                 self.piper.DisableArm(7)
                 self.piper.GripperCtrl(0,1000,0x02, 0)
             print(f"使能状态: {enable_flag}")
-            print(f"--------------------")
+            print("--------------------")
             if(enable_flag == enable):
                 loop_flag = True
                 enable_flag = True
@@ -69,7 +71,7 @@ class PiperMotorsBus:
                 enable_flag = False
             # 检查是否超过超时时间
             if elapsed_time > timeout:
-                print(f"超时....")
+                print("超时....")
                 enable_flag = False
                 loop_flag = True
                 break
@@ -78,8 +80,8 @@ class PiperMotorsBus:
         print(f"Returning response: {resp}")
         return resp
     
-    def motor_names(self):
-        return
+    def motor_indices(self) -> list[int]:
+        return [idx for idx, _ in self.motors.values()]
 
     def set_calibration(self):
         return
@@ -112,10 +114,13 @@ class PiperMotorsBus:
         joint_4 = round(target_joint[4]*self.joint_factor)
         joint_5 = round(target_joint[5]*self.joint_factor)
         gripper_range = round(target_joint[6]*1000*100)
+
+        if joint_4 < -70000:
+            joint_4 = -70000
         if gripper_range < 1000000:
             gripper_range = 0
 
-        self.piper.MotionCtrl_2(0x01, 0x01, 80, 0xAD) # joint control
+        self.piper.MotionCtrl_2(0x01, 0x01, 100, 0xAD) # joint control
         self.piper.JointCtrl(joint_0, joint_1, joint_2, joint_3, joint_4, joint_5)
         self.piper.GripperCtrl(abs(gripper_range), 1000, 0x01, 0) # 单位 0.001°
     

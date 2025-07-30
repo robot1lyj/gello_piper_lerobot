@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*-coding:utf8-*-
 
-from typing import (
-    Optional,
-)
 import time
+
 from piper_sdk import *
 
 # 测试代码

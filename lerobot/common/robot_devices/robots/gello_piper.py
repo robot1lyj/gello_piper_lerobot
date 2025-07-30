@@ -5,9 +5,7 @@ and send orders to its motors.
 # calibration procedure, to make it easy for people to add their own robot.
 
 import json
-import logging
 import time
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -15,10 +13,9 @@ import torch
 
 from lerobot.common.robot_devices.cameras.utils import make_cameras_from_configs
 from lerobot.common.robot_devices.motors.utils import MotorsBus, make_motors_buses_from_configs
-from lerobot.common.robot_devices.robots.configs import ManipulatorRobotConfig
+from lerobot.common.robot_devices.robots.configs import piperRobotConfig
 from lerobot.common.robot_devices.robots.utils import get_arm_id
 from lerobot.common.robot_devices.utils import RobotDeviceAlreadyConnectedError, RobotDeviceNotConnectedError
-from lerobot.common.robot_devices.robots.configs import piperRobotConfig
 
 
 class piperRobot:
@@ -232,14 +229,26 @@ class piperRobot:
             raise RobotDeviceNotConnectedError(
                 "ManipulatorRobot is not connected. You need to run `robot.connect()`."
             )
-
-        # Read follower position
         follower_pos = {}
         for name in self.follower_arms:
             before_fread_t = time.perf_counter()
             follower_pos[name] = self.follower_arms[name].read()
-            follower_pos[name] = torch.from_numpy(follower_pos[name])
+            joint_names = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6', 'gripper']
+    
+            # 提取关节值并转换为张量
+            joint_values = [follower_pos[name][j] for j in joint_names]
+            follower_pos[name] = torch.tensor(joint_values, dtype=torch.float32)
+            # print(f"变量类型: {type(follower_pos[name])}")
+            # print(f"变量内容: {follower_pos[name]}")
+            # follower_pos[name] = torch.from_numpy(follower_pos[name])
             self.logs[f"read_follower_{name}_pos_dt_s"] = time.perf_counter() - before_fread_t
+        # Read follower position
+        # follower_pos = {}
+        # for name in self.follower_arms:
+        #     before_fread_t = time.perf_counter()
+        #     follower_pos[name] = self.follower_arms[name].read()
+        #     follower_pos[name] = torch.from_numpy(follower_pos[name])
+        #     self.logs[f"read_follower_{name}_pos_dt_s"] = time.perf_counter() - before_fread_t
 
         # Create state by concatenating follower current position
         state = []
