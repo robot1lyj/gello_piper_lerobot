@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LeRobot 数据集管理</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background-color: #0b1120;
+        color: #e5e7eb;
+      }
+      .layout {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+      }
+      header {
+        padding: 12px 20px;
+        border-bottom: 1px solid #1f2937;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: radial-gradient(circle at top left, #1d4ed8, #020617);
+      }
+      header h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      header span {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 0;
+        height: 100%;
+      }
+      .sidebar {
+        border-right: 1px solid #1f2937;
+        padding: 12px;
+        overflow-y: auto;
+        background: linear-gradient(to bottom, #020617, #020617 40%, #020617);
+      }
+      .section-title {
+        font-size: 13px;
+        color: #9ca3af;
+        margin: 8px 0 4px;
+      }
+      .dataset-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .dataset-item {
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid #1f2937;
+        background: #020617;
+        transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      }
+      .dataset-item:hover {
+        background: #111827;
+        border-color: #1d4ed8;
+        transform: translateY(-1px);
+      }
+      .dataset-item.active {
+        background: #1d4ed8;
+        border-color: #60a5fa;
+      }
+      .dataset-name {
+        font-size: 13px;
+      }
+      .dataset-meta {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+      .content {
+        padding: 12px 16px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 8px;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .toolbar-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .toolbar-title {
+        font-size: 14px;
+      }
+      .toolbar-subtitle {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .episode-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-height: 90px;
+        overflow-y: auto;
+      }
+      .episode-chip {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid #1f2937;
+        cursor: pointer;
+        background: #020617;
+      }
+      .episode-chip.active {
+        background: #22c55e;
+        border-color: #4ade80;
+        color: #022c22;
+      }
+      .panes {
+        display: grid;
+        grid-template-rows: minmax(160px, 40%) minmax(160px, 1fr);
+        gap: 8px;
+        height: 100%;
+      }
+      .panel {
+        background: radial-gradient(circle at top left, #111827, #020617);
+        border-radius: 10px;
+        border: 1px solid #1f2937;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+      }
+      .panel-title {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .panel-body {
+        flex: 1;
+        display: flex;
+        gap: 8px;
+        overflow: hidden;
+      }
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 6px;
+        width: 100%;
+        height: 100%;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        border: 1px solid #1f2937;
+        background: black;
+      }
+      .chart-container {
+        flex: 1;
+        min-height: 0;
+      }
+      .chart {
+        width: 100%;
+        height: 100%;
+      }
+      .empty-state {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 12px;
+      }
+      .pill {
+        border-radius: 999px;
+        border: 1px solid #1f2937;
+        padding: 2px 8px;
+        font-size: 11px;
+        color: #9ca3af;
+      }
+      .stats-row {
+        display: flex;
+        gap: 6px;
+        font-size: 11px;
+        color: #9ca3af;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="layout">
+      <header>
+        <div>
+          <h1>LeRobot 数据集管理</h1>
+          <span>本地数据集 · 内网使用 · Vue 前端</span>
+        </div>
+        <div class="stats-row" v-if="currentDataset">
+          <div class="pill">数据集: {{ currentDataset.repo_id }}</div>
+          <div class="pill">集数: {{ currentDataset.num_episodes }}</div>
+          <div class="pill">总时长: {{ currentDataset.total_hours.toFixed(2) }} h</div>
+        </div>
+      </header>
+      <main>
+        <aside class="sidebar">
+          <div class="section-title">数据集</div>
+          <div v-if="datasets.length === 0" class="empty-state">后端未配置本地数据集 LOCAL_DATASETS</div>
+          <div class="dataset-list">
+            <div
+              v-for="ds in datasets"
+              :key="ds.repo_id"
+              class="dataset-item"
+              :class="{ active: currentDataset && currentDataset.repo_id === ds.repo_id }"
+              @click="selectDataset(ds)"
+            >
+              <div class="dataset-name">{{ ds.repo_id }}</div>
+              <div class="dataset-meta">
+                {{ ds.num_episodes }} 集 · {{ ds.total_hours.toFixed(2) }} 小时
+              </div>
+              <div class="dataset-meta" v-if="ds.tasks && ds.tasks.length">{{ ds.tasks.join(" · ") }}</div>
+            </div>
+          </div>
+        </aside>
+        <section class="content">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <div class="toolbar-title">
+                <span v-if="!currentDataset">请选择左侧数据集</span>
+                <span v-else-if="!currentEpisode">请选择下方 Episode 进行回放</span>
+                <span v-else>Episode {{ currentEpisode.episode_index }} 回放</span>
+              </div>
+              <div class="toolbar-subtitle" v-if="currentEpisode">
+                时长 {{ currentEpisode.duration_seconds.toFixed(2) }} 秒
+                <span v-if="currentEpisode.tasks && currentEpisode.tasks.length">
+                  · 任务: {{ currentEpisode.tasks.join(" · ") }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Episodes</div>
+            <div v-if="episodes.length === 0" class="empty-state" v-if="currentDataset">
+              当前数据集暂无 episode 或尚未加载
+            </div>
+            <div class="episode-list">
+              <div
+                v-for="ep in episodes"
+                :key="ep.episode_index"
+                class="episode-chip"
+                :class="{ active: currentEpisode && currentEpisode.episode_index === ep.episode_index }"
+                @click="selectEpisode(ep)"
+              >
+                ep {{ ep.episode_index }} · {{ ep.duration_seconds.toFixed(1) }}s
+              </div>
+            </div>
+          </div>
+          <div class="panes">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">相机视角</div>
+              </div>
+              <div class="panel-body">
+                <div v-if="videoSources.length === 0" class="empty-state">选择 Episode 后展示对应视频路径信息</div>
+                <div v-else class="video-grid">
+                  <div v-for="v in videoSources" :key="v.camera_key">
+                    <div class="toolbar-subtitle">{{ v.camera_key }}</div>
+                    <video :src="v.path" controls></video>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">动作 / 状态曲线</div>
+              </div>
+              <div class="panel-body">
+                <div class="chart-container">
+                  <div id="chart" class="chart"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script>
+      const { createApp, onMounted, ref, watch } = Vue
+
+      function createEChartsInstance() {
+        const dom = document.getElementById("chart")
+        if (!dom) return null
+        return echarts.init(dom)
+      }
+
+      const app = createApp({
+        setup() {
+          const datasets = ref([])
+          const currentDataset = ref(null)
+          const episodes = ref([])
+          const currentEpisode = ref(null)
+          const videoSources = ref([])
+          const playback = ref(null)
+          const chart = ref(null)
+
+          async function fetchDatasets() {
+            const res = await fetch("/api/datasets")
+            if (!res.ok) return
+            datasets.value = await res.json()
+            if (datasets.value.length > 0) {
+              selectDataset(datasets.value[0])
+            }
+          }
+
+          async function selectDataset(ds) {
+            currentDataset.value = ds
+            currentEpisode.value = null
+            videoSources.value = []
+            playback.value = null
+            const res = await fetch(`/api/datasets/${encodeURIComponent(ds.repo_id)}/episodes`)
+            if (!res.ok) return
+            episodes.value = await res.json()
+          }
+
+          async function selectEpisode(ep) {
+            if (!currentDataset.value) return
+            currentEpisode.value = ep
+            const repoId = currentDataset.value.repo_id
+            const [videosRes, playbackRes] = await Promise.all([
+              fetch(`/api/datasets/${encodeURIComponent(repoId)}/episodes/${ep.episode_index}/videos`),
+              fetch(`/api/datasets/${encodeURIComponent(repoId)}/episodes/${ep.episode_index}/playback`),
+            ])
+            if (videosRes.ok) {
+              videoSources.value = await videosRes.json()
+            }
+            if (playbackRes.ok) {
+              playback.value = await playbackRes.json()
+              updateChart()
+            }
+          }
+
+          function updateChart() {
+            if (!chart.value) {
+              chart.value = createEChartsInstance()
+            }
+            if (!chart.value || !playback.value) return
+            const series = []
+            const legend = []
+            const timestamps = playback.value.timestamps || []
+            const baseSeries = playback.value.series || []
+            baseSeries.forEach(seriesItem => {
+              const names = seriesItem.names || []
+              const values = seriesItem.values || []
+              if (!names.length || !values.length) return
+              const dims = names.length
+              for (let i = 0; i < dims; i += 1) {
+                const name = `${seriesItem.key}[${names[i]}]`
+                legend.push(name)
+                const data = values.map(row => [timestamps[values.indexOf(row)] || 0, row[i]])
+                series.push({
+                  name,
+                  type: "line",
+                  showSymbol: false,
+                  data,
+                })
+              }
+            })
+            const option = {
+              animation: false,
+              tooltip: {
+                trigger: "axis",
+              },
+              legend: {
+                data: legend,
+                textStyle: { color: "#9ca3af", fontSize: 10 },
+              },
+              grid: {
+                left: 40,
+                right: 20,
+                top: 40,
+                bottom: 30,
+              },
+              xAxis: {
+                type: "value",
+                name: "t (s)",
+                axisLine: { lineStyle: { color: "#4b5563" } },
+                axisLabel: { color: "#9ca3af" },
+              },
+              yAxis: {
+                type: "value",
+                axisLine: { lineStyle: { color: "#4b5563" } },
+                axisLabel: { color: "#9ca3af" },
+                splitLine: { lineStyle: { color: "#111827" } },
+              },
+              series,
+            }
+            chart.value.setOption(option)
+          }
+
+          onMounted(() => {
+            chart.value = createEChartsInstance()
+            fetchDatasets()
+            window.addEventListener("resize", () => {
+              if (chart.value) chart.value.resize()
+            })
+          })
+
+          watch(playback, () => {
+            updateChart()
+          })
+
+          return {
+            datasets,
+            currentDataset,
+            episodes,
+            currentEpisode,
+            videoSources,
+            selectDataset,
+            selectEpisode,
+          }
+        },
+      })
+
+      app.mount("#app")
+    </script>
+  </body>
+</html>
